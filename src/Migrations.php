@@ -18,6 +18,8 @@ use Nimblephp\framework\Exception\NimbleException;
 use Nimblephp\framework\Kernel;
 use Nimblephp\framework\Request;
 use Nimblephp\framework\Route;
+use Nimblephp\migrations\Exceptions\MigrationException;
+use Nimblephp\migrations\Resource\MigrationController;
 
 /**
  * Migrations
@@ -58,6 +60,7 @@ class Migrations
     {
         $this->projectPath = $projectPath;
         $this->migrationsPath = $projectPath . '/migrations';
+        $this->projectAutoloader();
 
         if (!file_exists($this->migrationsPath)) {
             File::mkdir($this->migrationsPath);
@@ -98,10 +101,26 @@ class Migrations
                 'status' => Status::PENDING->value
             ]);
 
-            $content = file_get_contents($this->migrationsPath . '/' . $path);
-
             try {
-                DatabaseManager::$connection->getConnection()->query($content);
+                switch (File::getExtension($this->migrationsPath . '/' . $path)) {
+                    case 'sql':
+                        $content = file_get_contents($this->migrationsPath . '/' . $path);
+                        DatabaseManager::$connection->getConnection()->query($content);
+
+                        break;
+                    case 'php':
+                        /** @var AbstractMigration $class */
+                        $class = include($this->migrationsPath . '/' . $path);
+
+                        if (!$class instanceof AbstractMigration) {
+                            throw new MigrationException('Failed load class');
+                        }
+
+                        $class->controller = new MigrationController();
+                        $class->run();
+
+                        break;
+                }
 
                 $this->migrationTable->updateValue('status', Status::FINISHED->value);
             } catch (\Throwable $exception) {
@@ -110,7 +129,7 @@ class Migrations
                     'error' => $exception->getMessage()
                 ]);
 
-                throw new NimbleException('Failed update');
+                throw new MigrationException('Failed update');
             }
         }
     }
@@ -198,6 +217,22 @@ class Migrations
         } catch (DatabaseManagerException $exception) {
             throw new NimbleException($exception->getHiddenMessage());
         }
+    }
+
+    /**
+     * Project autoloader
+     * @return void
+     */
+    protected function projectAutoloader(): void
+    {
+        spl_autoload_register(function ($className) {
+            $className = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $className);
+            $file = $this->projectPath . '/' . $className . '.php';
+
+            if (file_exists($file)) {
+                require($file);
+            }
+        });
     }
 
 }
