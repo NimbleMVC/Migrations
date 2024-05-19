@@ -14,6 +14,7 @@ use krzysztofzylka\DatabaseManager\Exception\DatabaseManagerException;
 use krzysztofzylka\DatabaseManager\Table;
 use Krzysztofzylka\File\File;
 use Nimblephp\framework\Config;
+use Nimblephp\framework\Exception\DatabaseException;
 use Nimblephp\framework\Exception\NimbleException;
 use Nimblephp\framework\Kernel;
 use Nimblephp\framework\Request;
@@ -205,12 +206,25 @@ class Migrations
         try {
             $connect = DatabaseConnect::create();
             $connect->setType(DatabaseType::mysql);
+
+            switch (Config::get('DATABASE_TYPE')) {
+                case 'mysql':
+                    $connect->setType(DatabaseType::mysql);
+                    $connect->setHost(Config::get('DATABASE_HOST'));
+                    $connect->setDatabaseName(Config::get('DATABASE_NAME'));
+                    $connect->setUsername(Config::get('DATABASE_USERNAME'));
+                    $connect->setPassword(Config::get('DATABASE_PASSWORD'));
+                    $connect->setPort(Config::get('DATABASE_PORT'));
+                    break;
+                case 'sqlite':
+                    $connect->setType(DatabaseType::sqlite);
+                    $connect->setSqlitePath(Kernel::$projectPath . DIRECTORY_SEPARATOR . Config::get('DATABASE_PATH'));
+                    break;
+                default:
+                    throw new DatabaseException('Invalid database type');
+            }
+
             $connect->setCharset(Config::get('DATABASE_CHARSET'));
-            $connect->setHost(Config::get('DATABASE_HOST'));
-            $connect->setDatabaseName(Config::get('DATABASE_NAME'));
-            $connect->setUsername(Config::get('DATABASE_USERNAME'));
-            $connect->setPassword(Config::get('DATABASE_PASSWORD'));
-            $connect->setPort(Config::get('DATABASE_PORT'));
 
             $manager = new DatabaseManager();
             $manager->connect($connect);
