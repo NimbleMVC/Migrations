@@ -2,10 +2,10 @@
 
 namespace Nimblephp\migrations\Resource;
 
-use Nimblephp\framework\Controller;
+use Nimblephp\framework\Abstracts\AbstractController;
 use Nimblephp\framework\Interfaces\ControllerInterface;
 
-class MigrationController extends Controller implements ControllerInterface
+class MigrationController extends AbstractController implements ControllerInterface
 {
 
     public string $name = 'migration';
