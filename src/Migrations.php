@@ -125,9 +125,23 @@ class Migrations
 
                 $this->migrationTable->updateValue('status', Status::FINISHED->value);
             } catch (\Throwable $exception) {
+                $message = $exception->getMessage();
+
+                if (method_exists($exception, 'getHiddenmessage')) {
+                    $message = $exception->getHiddenmessage();
+                }
+
+                if ($exception->getPrevious()) {
+                    $message = $exception->getPrevious()->getMessage();
+
+                    if (method_exists($exception->getPrevious(), 'getHiddenmessage')) {
+                        $message = $exception->getPrevious()->getHiddenmessage();
+                    }
+                }
+
                 $this->migrationTable->update([
                     'status' => Status::FAILED->value,
-                    'error' => $exception->getMessage()
+                    'error' => $message
                 ]);
 
                 throw new MigrationException('Failed update');
