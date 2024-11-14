@@ -2,7 +2,6 @@
 
 namespace Nimblephp\migrations;
 
-use Exception;
 use krzysztofzylka\DatabaseManager\Column;
 use krzysztofzylka\DatabaseManager\Condition;
 use krzysztofzylka\DatabaseManager\CreateTable;
@@ -21,6 +20,7 @@ use Nimblephp\framework\Request;
 use Nimblephp\framework\Route;
 use Nimblephp\migrations\Exceptions\MigrationException;
 use Nimblephp\migrations\Resource\MigrationController;
+use Throwable;
 
 /**
  * Migrations
@@ -54,30 +54,37 @@ class Migrations
 
     /**
      * Initialize migrations
-     * @param string $projectPath
-     * @throws Exception
+     * @param false|string $projectPath
+     * @param string|null $migrationsPath
+     * @throws NimbleException
+     * @throws Throwable
      */
-    public function __construct(string $projectPath)
+    public function __construct(false|string $projectPath, ?string $migrationsPath = null)
     {
         $this->projectPath = $projectPath;
-        $this->migrationsPath = $projectPath . '/migrations';
-        $this->projectAutoloader();
+        $this->migrationsPath = $migrationsPath ?? ($projectPath . '/migrations');
 
-        if (!file_exists($this->migrationsPath)) {
-            File::mkdir($this->migrationsPath);
+        if ($projectPath) {
+            $this->projectAutoloader();
+
+            if (!file_exists($this->migrationsPath)) {
+                File::mkdir($this->migrationsPath);
+            }
+
+            $request = new Request();
+            $route = new Route($request);
+            $kernel = new Kernel($route);
+            Kernel::$projectPath = $projectPath;
+            $kernel->handle();
+            $kernel->loadConfiguration();
+
+            if (!Config::get('DATABASE')) {
+                throw new NimbleException('Database is disabled');
+            }
+
+            $this->connectDatabase();
         }
 
-        $request = new Request();
-        $route = new Route($request);
-        $kernel = new Kernel($route);
-        Kernel::$projectPath = $projectPath;
-        $kernel->loadConfiguration();
-
-        if (!Config::get('DATABASE')) {
-            throw new NimbleException('Database is disabled');
-        }
-
-        $this->connectDatabase();
         $this->initTable();
     }
 
@@ -124,7 +131,7 @@ class Migrations
                 }
 
                 $this->migrationTable->updateValue('status', Status::FINISHED->value);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $message = $exception->getMessage();
 
                 if (method_exists($exception, 'getHiddenmessage')) {
