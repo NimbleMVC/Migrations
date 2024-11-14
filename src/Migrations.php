@@ -75,7 +75,7 @@ class Migrations
             $route = new Route($request);
             $kernel = new Kernel($route);
             Kernel::$projectPath = $projectPath;
-            $kernel->handle();
+            $kernel->bootstrap();
             $kernel->loadConfiguration();
 
             if (!Config::get('DATABASE')) {
