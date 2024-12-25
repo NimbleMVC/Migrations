@@ -77,7 +77,7 @@ class Migrations
             $kernel->bootstrap();
             $kernel->loadConfiguration();
 
-            if ($_ENV['DATABASE']) {
+            if (!$_ENV['DATABASE']) {
                 throw new NimbleException('Database is disabled');
             }
 
