@@ -12,7 +12,6 @@ use krzysztofzylka\DatabaseManager\Enum\DatabaseType;
 use krzysztofzylka\DatabaseManager\Exception\DatabaseManagerException;
 use krzysztofzylka\DatabaseManager\Table;
 use Krzysztofzylka\File\File;
-use Nimblephp\framework\Config;
 use Nimblephp\framework\Exception\DatabaseException;
 use Nimblephp\framework\Exception\NimbleException;
 use Nimblephp\framework\Kernel;
@@ -78,7 +77,7 @@ class Migrations
             $kernel->bootstrap();
             $kernel->loadConfiguration();
 
-            if (!Config::get('DATABASE')) {
+            if ($_ENV['DATABASE']) {
                 throw new NimbleException('Database is disabled');
             }
 
@@ -228,24 +227,24 @@ class Migrations
             $connect = DatabaseConnect::create();
             $connect->setType(DatabaseType::mysql);
 
-            switch (Config::get('DATABASE_TYPE')) {
+            switch ($_ENV['DATABASE_TYPE']) {
                 case 'mysql':
                     $connect->setType(DatabaseType::mysql);
-                    $connect->setHost(Config::get('DATABASE_HOST'));
-                    $connect->setDatabaseName(Config::get('DATABASE_NAME'));
-                    $connect->setUsername(Config::get('DATABASE_USERNAME'));
-                    $connect->setPassword(Config::get('DATABASE_PASSWORD'));
-                    $connect->setPort(Config::get('DATABASE_PORT'));
+                    $connect->setHost($_ENV['DATABASE_HOST']);
+                    $connect->setDatabaseName($_ENV['DATABASE_NAME']);
+                    $connect->setUsername($_ENV['DATABASE_USERNAME']);
+                    $connect->setPassword($_ENV['DATABASE_PASSWORD']);
+                    $connect->setPort($_ENV['DATABASE_PORT']);
                     break;
                 case 'sqlite':
                     $connect->setType(DatabaseType::sqlite);
-                    $connect->setSqlitePath(Kernel::$projectPath . DIRECTORY_SEPARATOR . Config::get('DATABASE_PATH'));
+                    $connect->setSqlitePath(Kernel::$projectPath . DIRECTORY_SEPARATOR . $_ENV['DATABASE_PATH']);
                     break;
                 default:
                     throw new DatabaseException('Invalid database type');
             }
 
-            $connect->setCharset(Config::get('DATABASE_CHARSET'));
+            $connect->setCharset($_ENV['DATABASE_CHARSET']);
 
             $manager = new DatabaseManager();
             $manager->connect($connect);
