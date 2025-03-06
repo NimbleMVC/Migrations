@@ -25,7 +25,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function loadModel(string $name): AbstractModel
     {
-        $class = '\src\Model\\' . $name;
+        $class = '\App\Model\\' . $name;
 
         if (!class_exists($class)) {
             throw new NotFoundException();

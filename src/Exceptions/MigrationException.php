@@ -2,6 +2,8 @@
 
 namespace NimblePHP\Migrations\Exceptions;
 
-class MigrationException extends \Exception
+use NimblePHP\Framework\Exception\HiddenException;
+
+class MigrationException extends HiddenException
 {
 }
