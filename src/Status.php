@@ -1,6 +1,6 @@
 <?php
 
-namespace Nimblephp\migrations;
+namespace NimblePHP\Migrations;
 
 /**
  * Migration status

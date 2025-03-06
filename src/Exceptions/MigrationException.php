@@ -1,6 +1,6 @@
 <?php
 
-namespace Nimblephp\migrations\Exceptions;
+namespace NimblePHP\Migrations\Exceptions;
 
 class MigrationException extends \Exception
 {
