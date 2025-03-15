@@ -20,7 +20,7 @@ composer require nimblephp/migrations
 
 include('../vendor/autoload.php');
 
-$migrations = new \Nimblephp\migrations\Migrations(__DIR__);
+$migrations = new \NimblePHP\Migrations\Migrations(__DIR__);
 $migrations->runMigrations();
 ```
 3. W folderze pliku `migrations` możemy utworzyć pliku `.sql` o nazwie `timestamp` (bash: `date +%s`)

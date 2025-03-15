@@ -1,6 +1,6 @@
 <?php
 
-namespace Nimblephp\migrations;
+namespace NimblePHP\Migrations;
 
 use krzysztofzylka\DatabaseManager\Column;
 use krzysztofzylka\DatabaseManager\Condition;
@@ -12,13 +12,13 @@ use krzysztofzylka\DatabaseManager\Enum\DatabaseType;
 use krzysztofzylka\DatabaseManager\Exception\DatabaseManagerException;
 use krzysztofzylka\DatabaseManager\Table;
 use Krzysztofzylka\File\File;
-use Nimblephp\framework\Exception\DatabaseException;
-use Nimblephp\framework\Exception\NimbleException;
-use Nimblephp\framework\Kernel;
-use Nimblephp\framework\Request;
-use Nimblephp\framework\Route;
-use Nimblephp\migrations\Exceptions\MigrationException;
-use Nimblephp\migrations\Resource\MigrationController;
+use NimblePHP\Framework\Exception\DatabaseException;
+use NimblePHP\Framework\Exception\NimbleException;
+use NimblePHP\Framework\Kernel;
+use NimblePHP\Framework\Request;
+use NimblePHP\Framework\Routes\Route;
+use NimblePHP\Migrations\Exceptions\MigrationException;
+use NimblePHP\Migrations\Resource\MigrationController;
 use Throwable;
 
 /**
@@ -91,6 +91,7 @@ class Migrations
      * Run migration
      * @return void
      * @throws DatabaseManagerException
+     * @throws MigrationException
      * @throws NimbleException
      */
     public function runMigrations(): void

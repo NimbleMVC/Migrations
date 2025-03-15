@@ -1,12 +1,12 @@
 <?php
 
-namespace Nimblephp\migrations;
+namespace NimblePHP\Migrations;
 
-use Nimblephp\framework\Abstracts\AbstractModel;
-use Nimblephp\framework\Exception\NimbleException;
-use Nimblephp\framework\Exception\NotFoundException;
-use Nimblephp\framework\Interfaces\ControllerInterface;
-use Nimblephp\migrations\Interfaces\MigrationInterface;
+use NimblePHP\Framework\Abstracts\AbstractModel;
+use NimblePHP\Framework\Exception\NimbleException;
+use NimblePHP\Framework\Exception\NotFoundException;
+use NimblePHP\Framework\Interfaces\ControllerInterface;
+use NimblePHP\Migrations\Interfaces\MigrationInterface;
 
 /**
  * Abstract migration
@@ -25,7 +25,7 @@ abstract class AbstractMigration implements MigrationInterface
      */
     public function loadModel(string $name): AbstractModel
     {
-        $class = '\src\Model\\' . $name;
+        $class = '\App\Model\\' . $name;
 
         if (!class_exists($class)) {
             throw new NotFoundException();

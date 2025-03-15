@@ -1,6 +1,6 @@
 <?php
 
-namespace Nimblephp\migrations\Interfaces;
+namespace NimblePHP\Migrations\Interfaces;
 
 interface MigrationInterface
 {

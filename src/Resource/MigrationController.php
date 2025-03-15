@@ -1,9 +1,9 @@
 <?php
 
-namespace Nimblephp\migrations\Resource;
+namespace NimblePHP\Migrations\Resource;
 
-use Nimblephp\framework\Abstracts\AbstractController;
-use Nimblephp\framework\Interfaces\ControllerInterface;
+use NimblePHP\Framework\Abstracts\AbstractController;
+use NimblePHP\Framework\Interfaces\ControllerInterface;
 
 class MigrationController extends AbstractController implements ControllerInterface
 {

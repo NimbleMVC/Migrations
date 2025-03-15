@@ -5,7 +5,7 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Nimblephp\\migrations\\": "src/"
+      "NimblePHP\\Migrations\\": "src/"
     }
   },
   "authors": [
@@ -16,7 +16,7 @@
   ],
   "require": {
     "php": ">=8.2",
-    "nimblephp/framework": "^0.1.11",
+    "nimblephp/framework": "^0.2.0",
     "krzysztofzylka/file": "^1.0.2"
   }
 }
