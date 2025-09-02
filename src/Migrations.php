@@ -2,6 +2,7 @@
 
 namespace NimblePHP\Migrations;
 
+use krzysztofzylka\DatabaseManager\AlterTable;
 use krzysztofzylka\DatabaseManager\Column;
 use krzysztofzylka\DatabaseManager\Condition;
 use krzysztofzylka\DatabaseManager\CreateTable;
@@ -9,6 +10,7 @@ use krzysztofzylka\DatabaseManager\DatabaseConnect;
 use krzysztofzylka\DatabaseManager\DatabaseManager;
 use krzysztofzylka\DatabaseManager\Enum\ColumnType;
 use krzysztofzylka\DatabaseManager\Enum\DatabaseType;
+use krzysztofzylka\DatabaseManager\Exception\ConnectException;
 use krzysztofzylka\DatabaseManager\Exception\DatabaseManagerException;
 use krzysztofzylka\DatabaseManager\Table;
 use Krzysztofzylka\File\File;
@@ -52,16 +54,26 @@ class Migrations
     protected Table $migrationTable;
 
     /**
+     * Migrations group name
+     * @var string
+     */
+    protected string $migrationsGroup;
+
+    /**
      * Initialize migrations
      * @param false|string $projectPath
      * @param string|null $migrationsPath
+     * @param string|null $migrationsGroup
+     * @throws ConnectException
+     * @throws DatabaseException
      * @throws NimbleException
      * @throws Throwable
      */
-    public function __construct(false|string $projectPath, ?string $migrationsPath = null)
+    public function __construct(false|string $projectPath, ?string $migrationsPath = null, ?string $migrationsGroup = 'project')
     {
         $this->projectPath = $projectPath;
         $this->migrationsPath = $migrationsPath ?? ($projectPath . '/migrations');
+        $this->migrationsGroup = $migrationsGroup;
 
         if ($projectPath) {
             $this->projectAutoloader();
@@ -100,13 +112,14 @@ class Migrations
         $this->generateMigrationList();
 
         foreach ($this->migrationList as $timestamp => $path) {
-            if ($this->migrationTable->findIsset(['migrations.timestamp' => $timestamp])) {
+            if ($this->migrationTable->findIsset(['migrations.timestamp' => $timestamp, 'migrations.group' => $this->migrationsGroup])) {
                 continue;
             }
 
             $this->migrationTable->setId(null)->insert([
                 'timestamp' => $timestamp,
-                'status' => Status::PENDING->value
+                'status' => Status::PENDING->value,
+                'group' => $this->migrationsGroup
             ]);
 
             try {
@@ -191,6 +204,8 @@ class Migrations
     /**
      * Init migration table instance
      * @return void
+     * @throws ConnectException
+     * @throws DatabaseManagerException
      * @throws NimbleException
      */
     protected function initTable(): void
@@ -198,6 +213,14 @@ class Migrations
         $this->migrationTable = new Table('migrations');
 
         if ($this->migrationTable->exists()) {
+            try {
+                $this->migrationTable->columnList('group');
+            } catch (DatabaseManagerException $exception) {
+                $alterTable = new AlterTable('migrations');
+                $alterTable->addColumn(Column::create('group', ColumnType::varchar, 128)->setDefault('project'), 'timestamp');
+                $alterTable->execute();
+            }
+
             return;
         }
 
@@ -205,6 +228,7 @@ class Migrations
         $createTable->setName('migrations');
         $createTable->addIdColumn();
         $createTable->addSimpleVarcharColumn('timestamp', 50);
+        $createTable->addSimpleVarcharColumn('group', 128);
         $createTable->addSimpleVarcharColumn('status');
         $createTable->addColumn((new Column('error'))->setType(ColumnType::text));
         $createTable->addDateModifyColumn();
