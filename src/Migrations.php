@@ -69,7 +69,7 @@ class Migrations
      * @throws NimbleException
      * @throws Throwable
      */
-    public function __construct(false|string $projectPath, ?string $migrationsPath = null, ?string $migrationsGroup = 'project')
+    public function __construct(false|string $projectPath, ?string $migrationsPath = null, ?string $migrationsGroup = 'app')
     {
         $this->projectPath = $projectPath;
         $this->migrationsPath = $migrationsPath ?? ($projectPath . '/migrations');
@@ -215,7 +215,7 @@ class Migrations
         if ($this->migrationTable->exists()) {
             if (array_search('group', array_column($this->migrationTable->columnList(), 'Field')) === false) {
                 $alterTable = new AlterTable('migrations');
-                $alterTable->addColumn(Column::create('group', ColumnType::varchar, 128)->setDefault('project'), 'timestamp');
+                $alterTable->addColumn(Column::create('group', ColumnType::varchar, 128)->setDefault('app'), 'timestamp');
                 $alterTable->execute();
             }
 
