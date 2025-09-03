@@ -213,9 +213,7 @@ class Migrations
         $this->migrationTable = new Table('migrations');
 
         if ($this->migrationTable->exists()) {
-            try {
-                $this->migrationTable->columnList('group');
-            } catch (DatabaseManagerException $exception) {
+            if (array_search('group', array_column($this->migrationTable->columnList(), 'Field')) === false) {
                 $alterTable = new AlterTable('migrations');
                 $alterTable->addColumn(Column::create('group', ColumnType::varchar, 128)->setDefault('project'), 'timestamp');
                 $alterTable->execute();
