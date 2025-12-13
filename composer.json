@@ -16,7 +16,7 @@
   ],
   "require": {
     "php": ">=8.2",
-    "nimblephp/framework": ">=0.2.0",
+    "nimblephp/framework": "^0.3.8",
     "krzysztofzylka/file": "^1.0.2"
   }
 }
