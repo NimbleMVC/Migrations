@@ -3,13 +3,11 @@
 namespace NimblePHP\Migrations;
 
 use krzysztofzylka\DatabaseManager\DatabaseManager;
-use NimblePHP\Framework\Abstracts\AbstractModel;
-use NimblePHP\Framework\Exception\NimbleException;
-use NimblePHP\Framework\Exception\NotFoundException;
 use NimblePHP\Framework\Interfaces\ControllerInterface;
 use NimblePHP\Framework\Traits\LoadModelTrait;
 use NimblePHP\Framework\Traits\LogTrait;
 use NimblePHP\Migrations\Interfaces\MigrationInterface;
+use PDO;
 
 /**
  * Abstract migration
