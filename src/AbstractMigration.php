@@ -2,11 +2,12 @@
 
 namespace NimblePHP\Migrations;
 
-use NimblePHP\Framework\Abstracts\AbstractModel;
-use NimblePHP\Framework\Exception\NimbleException;
-use NimblePHP\Framework\Exception\NotFoundException;
+use krzysztofzylka\DatabaseManager\DatabaseManager;
 use NimblePHP\Framework\Interfaces\ControllerInterface;
+use NimblePHP\Framework\Traits\LoadModelTrait;
+use NimblePHP\Framework\Traits\LogTrait;
 use NimblePHP\Migrations\Interfaces\MigrationInterface;
+use PDO;
 
 /**
  * Abstract migration
@@ -14,35 +15,19 @@ use NimblePHP\Migrations\Interfaces\MigrationInterface;
 abstract class AbstractMigration implements MigrationInterface
 {
 
+    use LogTrait;
+    use LoadModelTrait;
+
     public ControllerInterface $controller;
 
     /**
-     * Load model
-     * @param string $name
-     * @return AbstractModel
-     * @throws NimbleException
-     * @throws NotFoundException
+     * Run query
+     * @param string $query
+     * @return array
      */
-    public function loadModel(string $name): AbstractModel
+    public function query(string $query): array
     {
-        $class = '\App\Model\\' . $name;
-
-        if (!class_exists($class)) {
-            throw new NotFoundException();
-        }
-
-        /** @var AbstractModel $model */
-        $model = new $class();
-
-        if (!$model instanceof AbstractModel) {
-            throw new NimbleException('Failed load model');
-        }
-
-        $model->name = $name;
-        $model->prepareTableInstance();
-        $model->controller = $this->controller;
-
-        return $model;
+        return DatabaseManager::$connection->getConnection()->query($query)->fetchAll(PDO::FETCH_ASSOC);
     }
 
 }
