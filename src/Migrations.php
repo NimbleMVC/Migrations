@@ -72,7 +72,7 @@ class Migrations
     public function __construct(false|string $projectPath, ?string $migrationsPath = null, ?string $migrationsGroup = 'app')
     {
         $this->projectPath = $projectPath;
-        $this->migrationsPath = $migrationsPath ?? ($projectPath . '/migrations');
+        $this->migrationsPath = $migrationsPath ? (($projectPath ? ($projectPath . '/') : '') . $migrationsPath) : ($projectPath . '/migrations');
         $this->migrationsGroup = $migrationsGroup;
 
         if ($projectPath) {
