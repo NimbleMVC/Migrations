@@ -2,6 +2,7 @@
 
 namespace NimblePHP\Migrations;
 
+use Krzysztofzylka\Console\Prints;
 use krzysztofzylka\DatabaseManager\AlterTable;
 use krzysztofzylka\DatabaseManager\Column;
 use krzysztofzylka\DatabaseManager\Condition;
@@ -72,7 +73,7 @@ class Migrations
     public function __construct(false|string $projectPath, ?string $migrationsPath = null, ?string $migrationsGroup = 'app')
     {
         $this->projectPath = $projectPath;
-        $this->migrationsPath = $migrationsPath ? (($projectPath ? ($projectPath . '/') : '') . $migrationsPath) : ($projectPath . '/migrations');
+        $this->migrationsPath = $migrationsPath ?? ($projectPath . '/migrations');
         $this->migrationsGroup = $migrationsGroup;
 
         if ($projectPath) {
@@ -101,19 +102,28 @@ class Migrations
 
     /**
      * Run migration
+     * @param bool $consoleOutput
      * @return void
      * @throws DatabaseManagerException
      * @throws MigrationException
      * @throws NimbleException
      */
-    public function runMigrations(): void
+    public function runMigrations(bool $consoleOutput = false): void
     {
         $this->checkMigrations();
         $this->generateMigrationList();
 
+        if ($consoleOutput) {
+            Prints::print(value: 'Start migration', timestamp: true);
+        }
+
         foreach ($this->migrationList as $timestamp => $path) {
             if ($this->migrationTable->findIsset(['migrations.timestamp' => $timestamp, 'migrations.group' => $this->migrationsGroup])) {
                 continue;
+            }
+
+            if ($consoleOutput) {
+                Prints::print(value: 'Run migration ' . $timestamp . ' [' . $this->migrationsGroup . ']', timestamp: true);
             }
 
             $this->migrationTable->setId(null)->insert([
@@ -164,8 +174,16 @@ class Migrations
                     'error' => $message
                 ]);
 
+                if ($consoleOutput) {
+                    Prints::print(value: 'Failed execute migration: ' . $message, timestamp: true, exit: true, color: 'red');
+                }
+
                 throw new MigrationException('Failed update');
             }
+        }
+
+        if ($consoleOutput) {
+            Prints::print(value: 'End migration', timestamp: true, color: 'green');
         }
     }
 
